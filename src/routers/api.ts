@@ -25,8 +25,11 @@ import * as messagesHandler from '../handlers/messages';
 import { ca, cert, certBundle, key, peerID } from '../lib/cert';
 import { config, persistPeers } from '../lib/config';
 import { IStatus } from '../lib/interfaces';
+import { Logger } from '../lib/logger';
 import RequestError from '../lib/request-error';
 import * as utils from '../lib/utils';
+
+const log = new Logger("routers/api.ts")
 
 export const router = Router();
 
@@ -173,10 +176,22 @@ router.get('/blobs/*', async (req: Request, res, next) => {
     const metadata = await blobsHandler.retreiveMetadata(blobPath);
     res.setHeader(utils.constants.HASH_HEADER_NAME, metadata.hash);
     res.setHeader(utils.constants.LAST_UPDATE_HEADER_NAME, metadata.lastUpdate);
+    log.debug('>>> ABOUT TO OBTAIN BLOB STREAM');
     const blobStream = await blobsHandler.retreiveBlob(blobPath);
-    blobStream.on('end', () => res.end());
+    log.debug('>>> BLOB STREAM OBTAINED');
+    blobStream.on('end', () =>
+    {
+      log.debug('>>> STREAM ENDED, ABOUT TO END RESPONSE');
+      res.end();
+      log.debug('>>> RESPONSE ENDED');
+    });
+    blobStream.on('error', err => {
+      log.debug(`>>> STREAM ERROR ${err.message}`);
+    });
+    log.debug('>>> ABOUT TO PIPE BLOB STREAM TO RESPONSE');
     blobStream.pipe(res);
-  } catch (err) {
+  } catch (err: any) {
+    log.debug(`>>> EXCEPTION WHILE SERVING BLOB STREAM ${err.message}`);
     next(err);
   }
 });
