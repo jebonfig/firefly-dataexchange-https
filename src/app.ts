@@ -127,6 +127,7 @@ export const start = async () => {
       if (config.apiKey !== undefined && req.headers['x-api-key'] !== config.apiKey) {
         next(new RequestError('Unauthorized', 401));
       } else {
+        log.debug(`${req.method} ${req.path}`);
         next();
       }
     }

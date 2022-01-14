@@ -15,6 +15,10 @@
 // limitations under the License.
 
 import { NextFunction, Request, Response } from 'express';
+import { Logger } from './logger';
+
+const log = new Logger("lib/request-error.ts");
+
 
 export default class RequestError extends Error {
 
@@ -29,7 +33,8 @@ export default class RequestError extends Error {
 
 }
 
-export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
+  log.error(`${req.path} ${err.message}`)
   if(err instanceof RequestError) {
     res.status(err.responseCode).send({error: err.message, details: err.details});
   } else {
