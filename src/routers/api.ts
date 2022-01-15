@@ -180,11 +180,11 @@ router.get('/blobs/*', async (req: Request, res, next) => {
     const blobStream = await blobsHandler.retreiveBlob(blobPath);
     log.debug('>>> BLOB STREAM OBTAINED');
     blobStream.on('end', () =>
-    {
-      log.debug('>>> STREAM ENDED, ABOUT TO END RESPONSE');
-      res.end();
-      log.debug('>>> RESPONSE ENDED');
-    });
+    // {
+    //   log.debug('>>> STREAM ENDED, ABOUT TO END RESPONSE');
+    //   res.end();
+    //   log.debug('>>> RESPONSE ENDED');
+    // });
     blobStream.on('error', err => {
       log.debug(`>>> STREAM ERROR ${err.message}`);
     });
